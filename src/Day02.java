@@ -1005,7 +1005,7 @@ public class Day02 {
 				"23x11x5\n" + 
 				"";
 		
-		int total_paper = 0;
+		int ribbon = 0;
 		
 		String[] presents = input.split("\n");
 		
@@ -1016,27 +1016,27 @@ public class Day02 {
 			int b = Integer.parseInt(dimensions[1]);
 			int c = Integer.parseInt(dimensions[2]);
 			
-			total_paper += 2*(a*b + a*c + b*c) + min(a*b, a*c, b*c);
+			ribbon += a*b*c + 2*a + 2*b + 2*c - max(2*a, 2*b, 2*c);
 		}
 		
-		System.out.println(total_paper);
+		System.out.println(ribbon);
 	}
 	
-	public static int min (int a, int b, int c) {
+	public static int max (int a, int b, int c) {
 		if (a<b) {
-			if (a<c) {
-				return a;
+			if (b<c) {
+				return c;
 			}
 			else {
-				return c;
+				return b;
 			}
 		}
 		else {
-			if (b<c) {
-				return b;
+			if (a<c) {
+				return c;
 			}
 			else {
-				return c;
+				return a;
 			}
 		}
 	}
