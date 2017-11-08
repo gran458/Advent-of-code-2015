@@ -13,9 +13,12 @@ public class Day01 {
 			else {
 				floor--;
 			}
+			if (floor == -1) {
+				System.out.println(i+1);
+				break;
+			}
 		}
 		
-		System.out.println(floor);
 	}
 
 }
