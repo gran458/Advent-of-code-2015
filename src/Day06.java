@@ -323,8 +323,7 @@ public class Day06 {
 				
 				for (int j = startx; j <= endx; j++) {
 					for (int k = starty; k <= endy; k++) {
-						lights[j][k] += 1;
-						lights[j][k] %= 2;
+						lights[j][k] += 2;
 					}
 				}
 			}
@@ -341,7 +340,7 @@ public class Day06 {
 				if (tokens[1].equals("on")) {
 					for (int j = startx; j <= endx; j++) {
 						for (int k = starty; k <= endy; k++) {
-							lights[j][k] = 1;
+							lights[j][k] += 1;
 						}
 					}
 				}
@@ -349,7 +348,9 @@ public class Day06 {
 				else if (tokens[1].equals("off")) {
 					for (int j = startx; j <= endx; j++) {
 						for (int k = starty; k <= endy; k++) {
-							lights[j][k] = 0;
+							if (lights[j][k] != 0) {
+								lights[j][k] -= 1;
+							}
 						}
 					}
 				}
