@@ -1008,36 +1008,43 @@ public class Day05 {
 		int nice = 0;
 		
 		for (int i = 0; i < words.length; i++) {
-			int vowels = 0;
 			boolean doubleletter = false;
-			boolean forbiddenstring = false;
-			for (int j = 0; j < words[i].length(); j++) {
-				
-				// check for vowels
-				if (words[i].charAt(j) == 'a' || words[i].charAt(j) == 'e' || words[i].charAt(j) == 'i' || 
-						words[i].charAt(j) == 'o' || words[i].charAt(j) == 'u') {
-					vowels++;
+			boolean pair = false;
+			
+			for (int j = 0; j < words[i].length() - 2; j++) {
+				// It contains at least one letter which repeats with exactly one 
+				// letter between them, like xyx, abcdefeghi (efe), or even aaa.
+				if (words[i].charAt(j) == words[i].charAt(j+2)) {
+					doubleletter = true;
 				}
+			}
+			
+			// array of strings of 2 letters
+			String[] arr = new String[words[i].length()-1];
+			int index = 0;
+			for (int j = 0; j < words[i].length() - 1; j++) {
+				// It contains a pair of any two letters that appears at least twice 
+				// in the string without overlapping, like xyxy (xy) or aabcdefgaa (aa), 
+				// but not like aaa (aa, but it overlaps).
 				
-				if (j != 0) {
-					
-					// check for forbiddens strings
-					if (words[i].charAt(j-1) == 'a' && words[i].charAt(j) == 'b' || 
-							words[i].charAt(j-1) == 'c' && words[i].charAt(j) == 'd' || 
-							words[i].charAt(j-1) == 'p' && words[i].charAt(j) == 'q' || 
-							words[i].charAt(j-1) == 'x' && words[i].charAt(j) == 'y') {
-						forbiddenstring = true;
+				// array of strings length words[i].length-1
+				// 2 strings repeated, but not 2 in a row
+				String s = "" + words[i].charAt(j) + words[i].charAt(j+1);
+				arr[index] = s;
+				index++;
+			}
+			
+			// 2 strings repeated, but not 2 in a row
+			for (int j = 0; j < arr.length; j++) {
+				for (int k = j + 2; k < arr.length; k++) {
+					if (arr[j].equals(arr[k])) {
+						pair = true;
 						break;
-					}
-					
-					// check for double letter
-					if (words[i].charAt(j-1) == words[i].charAt(j)) {
-						doubleletter = true;
 					}
 				}
 			}
 			
-			if (!forbiddenstring && doubleletter && vowels > 2) {
+			if (doubleletter && pair) {
 				nice++;
 			}
 		}
