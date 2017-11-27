@@ -6,7 +6,7 @@ import java.security.NoSuchAlgorithmException;
 public class Day04 {
 	
 	public static boolean checkmd5 (String s) {
-		for (int i = 0; i < 5; i++) {
+		for (int i = 0; i < 6; i++) {
 			if (s.charAt(i) != '0') {
 				return false;
 			}
