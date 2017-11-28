@@ -115,6 +115,134 @@ public class Day07 {
 		
 		return -1;
 	}
+	
+	public static int simulate (String[] instructions) {
+		// maximum number of variables is number of instructions
+		String[] vars = new String[instructions.length];
+		byte[][] values = new byte[instructions.length][16];
+		int index = 0;	// for adding new variables to array
+		
+		while (allinstructionsdone(instructions)) {
+			
+			for (int i = 0; i < instructions.length; i++) {
+				if (instructions[i].length() == 0) {
+					continue;
+				}
+				
+				String[] tokens = instructions[i].split(" ");
+				// each instruction has 3, 4 or 5 tokens
+				
+				if (tokens.length == 3) {
+					// int to byte or byte to byte
+					
+					try {
+						values[index] = inttobyte(Integer.parseInt(tokens[0]));
+						vars[index] = tokens[2];
+						// instruction executed, clear instruction
+						instructions[i] = "";
+						index++;
+					} catch (NumberFormatException e) {
+						//System.out.println(tokens[0]);
+						if (findvar(tokens[0], vars, index) == -1) {
+							continue;
+						}
+						else {
+							values[index] = values[findvar(tokens[0], vars, index)];
+							vars[index] = tokens[2];
+							// instruction executed, clear instruction
+							instructions[i] = "";
+							index++;
+						}
+					}
+				}
+				
+				else if (tokens.length == 4) {
+					// not
+					// if second token exists in vars
+					int x = findvar (tokens[1], vars, index);
+					if (x != -1) {
+						
+						// second token exists, not(token) and save to vars
+						vars[index] = tokens[3];
+						values[index] = not(values[x]);
+						// instruction executed, clear instruction
+						instructions[i] = "";
+						index++;
+					}
+				}
+				
+				else if (tokens.length == 5) {
+					// or, and, lshift or rshift
+					
+					if (tokens[1].equals("OR")) {
+
+						int x = findvar (tokens[0], vars, index);
+						int y = findvar (tokens[2], vars, index);
+						
+						if (x != -1 && y != -1) {
+							vars[index] = tokens[4];
+							values[index] = or(values[x], values[y]);
+							// instruction executed, clear instruction
+							instructions[i] = "";
+							index++;
+						}
+					}
+					
+					else if (tokens[1].equals("AND")) {
+						// 1 AND var of var AND var
+						int x = findvar (tokens[0], vars, index);
+						int y = findvar (tokens[2], vars, index);
+						
+						if (x != -1 && y != -1) {
+							vars[index] = tokens[4];
+							values[index] = and(values[x], values[y]);
+							// instruction executed, clear instruction
+							instructions[i] = "";
+							index++;
+						}
+						
+						else if (tokens[0].equals("1") && y != -1) {
+							vars[index] = tokens[4];
+							byte[] b = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1};
+							values[index] = and(b, values[y]);
+							// instruction executed, clear instruction
+							instructions[i] = "";
+							index++;
+						}
+					}
+					
+					else if (tokens[1].equals("LSHIFT")) {
+						
+						int x = findvar (tokens[0], vars, index);
+						
+						if (x != -1) {
+							vars[index] = tokens[4];
+							values[index] = lshift(values[x], Integer.parseInt(tokens[2]));
+							// instruction executed, clear instruction
+							instructions[i] = "";
+							index++;
+						}
+					}
+					
+					else if (tokens[1].equals("RSHIFT")) {
+						int x = findvar (tokens[0], vars, index);
+						
+						if (x != -1) {
+							vars[index] = tokens[4];
+							values[index] = rshift(values[x], Integer.parseInt(tokens[2]));
+							// instruction executed, clear instruction
+							instructions[i] = "";
+							index++;
+						}
+					}
+				}
+			}
+		}
+		
+		// what signal is ultimately provided to wire a?
+		int x = findvar ("a", vars, index);
+		return bytetoint(values[x]);
+	}
 
 	public static void main(String[] args) {
 		
@@ -460,138 +588,24 @@ public class Day07 {
 				"";
 		
 		String[] instructions = input.split("\n");
+		int result = simulate (instructions);
+		System.out.println(result);
 		
-		// maximum number of variables is number of instructions
-		String[] vars = new String[instructions.length];
-		byte[][] values = new byte[instructions.length][16];
-		int index = 0;	// for adding new variables to array
-		
-		while (allinstructionsdone(instructions)) {
+		// part two: override b with a, what is new a?
+		instructions = input.split("\n");		// because i override instructions
+		for (int i = 0; i < instructions.length; i++) {
+			String[] tokens = instructions[i].split(" ");
 			
-			for (int i = 0; i < instructions.length; i++) {
-				if (instructions[i].length() == 0) {
-					continue;
-				}
-				
-				String[] tokens = instructions[i].split(" ");
-				// each instruction has 3, 4 or 5 tokens
-				
-				if (tokens.length == 3) {
-					// int to byte or byte to byte
-					
-					try {
-						values[index] = inttobyte(Integer.parseInt(tokens[0]));
-						vars[index] = tokens[2];
-						// instruction executed, clear instruction
-						instructions[i] = "";
-						index++;
-					} catch (NumberFormatException e) {
-						//System.out.println(tokens[0]);
-						if (findvar(tokens[0], vars, index) == -1) {
-							continue;
-						}
-						else {
-							values[index] = values[findvar(tokens[0], vars, index)];
-							vars[index] = tokens[2];
-							// instruction executed, clear instruction
-							instructions[i] = "";
-							index++;
-						}
-					}
-				}
-				
-				else if (tokens.length == 4) {
-					// not
-					// if second token exists in vars
-					int x = findvar (tokens[1], vars, index);
-					if (x != -1) {
-						
-						// second token exists, not(token) and save to vars
-						vars[index] = tokens[3];
-						values[index] = not(values[x]);
-						// instruction executed, clear instruction
-						instructions[i] = "";
-						index++;
-					}
-				}
-				
-				else if (tokens.length == 5) {
-					// or, and, lshift or rshift
-					
-					if (tokens[1].equals("OR")) {
-						
-						int x = findvar (tokens[0], vars, index);
-						int y = findvar (tokens[2], vars, index);
-						
-						if (x != -1 && y != -1) {
-							vars[index] = tokens[4];
-							values[index] = or(values[x], values[y]);
-							// instruction executed, clear instruction
-							instructions[i] = "";
-							index++;
-						}
-					}
-					
-					else if (tokens[1].equals("AND")) {
-						// 1 AND var of var AND var
-
-						int x = findvar (tokens[0], vars, index);
-						int y = findvar (tokens[2], vars, index);
-						
-						
-						if (x != -1 && y != -1) {
-							vars[index] = tokens[4];
-							values[index] = and(values[x], values[y]);
-							// instruction executed, clear instruction
-							instructions[i] = "";
-							index++;
-						}
-						
-						else if (tokens[0].equals("1") && y != -1) {
-							vars[index] = tokens[4];
-							byte[] b = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1};
-							values[index] = and(b, values[y]);
-							// instruction executed, clear instruction
-							instructions[i] = "";
-							index++;
-						}
-					}
-					
-					else if (tokens[1].equals("LSHIFT")) {
-						
-						int x = findvar (tokens[0], vars, index);
-						
-						if (x != -1) {
-							vars[index] = tokens[4];
-							values[index] = lshift(values[x], Integer.parseInt(tokens[2]));
-							// instruction executed, clear instruction
-							instructions[i] = "";
-							index++;
-						}
-					}
-					
-					else if (tokens[1].equals("RSHIFT")) {
-
-						int x = findvar (tokens[0], vars, index);
-						
-						if (x != -1) {
-							vars[index] = tokens[4];
-							values[index] = rshift(values[x], Integer.parseInt(tokens[2]));
-							// instruction executed, clear instruction
-							instructions[i] = "";
-							index++;
-						}
-					}
+			// find b and replace
+			if (tokens.length == 3) {
+				if (tokens[2].equals("b")) {
+					tokens[0] = Integer.toString(result);
+					instructions[i] = tokens[0] + " " + tokens[1] + " " + tokens[2];
 				}
 			}
 		}
-		
-		// what signal is ultimately provided to wire a?
-		int x = findvar ("a", vars, index);
-		if (x != -1) {
-			System.out.println(bytetoint(values[x]));
-		}
-		
+		result = simulate (instructions);
+		System.out.println(result);
 	}
 
 }
